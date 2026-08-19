@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Still — a local zen writer</title>
+  <style>
+    :root{color-scheme:dark;--bg:#0c0d0d;--panel:#111313;--ink:#e8e6df;--muted:#777b76;--line:#252827;--accent:#a8c8ae;--focus-y:50%}
+    *{box-sizing:border-box}html,body{height:100%;margin:0}body{overflow:hidden;background:var(--bg);color:var(--ink);font:14px/1.5 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+    button,input,textarea{font:inherit}button{color:inherit}.app{height:100%;display:grid;grid-template-columns:280px 1fr;transition:grid-template-columns .35s cubic-bezier(.2,.8,.2,1)}.app.closed{grid-template-columns:0 1fr}
+    .sidebar{position:relative;z-index:3;overflow:hidden;background:var(--panel);border-right:1px solid var(--line);min-width:0}.side-inner{width:280px;height:100%;display:flex;flex-direction:column;padding:24px 16px}
+    .brand{display:flex;align-items:center;justify-content:space-between;padding:0 8px 22px}.wordmark{font-family:Georgia,serif;font-size:20px;letter-spacing:.04em}.wordmark i{display:inline-block;width:6px;height:6px;margin-right:9px;border-radius:50%;background:var(--accent);box-shadow:0 0 18px var(--accent)}
+    .icon-btn,.text-btn{border:0;background:transparent;cursor:pointer;border-radius:8px;transition:.2s}.icon-btn{width:32px;height:32px;display:grid;place-items:center;color:var(--muted);font-size:19px}.icon-btn:hover,.text-btn:hover{background:#1c1f1e;color:var(--ink)}
+    .side-actions{display:flex;gap:6px;padding:0 4px 16px}.text-btn{padding:7px 9px;color:#a3a7a1;font-size:12px}.text-btn span{font-size:16px;margin-right:5px}.tree{flex:1;overflow:auto;padding:2px 4px}.tree::-webkit-scrollbar{width:5px}.tree::-webkit-scrollbar-thumb{background:#2b2f2d;border-radius:9px}
+    .folder{margin-bottom:8px}.folder-head,.file-row{display:flex;align-items:center;gap:8px;border-radius:7px;min-height:34px}.folder-head{padding:0 8px;color:#979b96;font-size:12px;text-transform:uppercase;letter-spacing:.09em}.folder-head .chev{font-size:10px;transition:.2s}.folder.collapsed .chev{transform:rotate(-90deg)}.folder.collapsed .files{display:none}.folder-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}.file-row{padding:0 7px 0 26px;color:#9ca09b;cursor:pointer;position:relative}.file-row:hover{background:#181b1a;color:#d5d5cf}.file-row.active{background:#202422;color:var(--ink)}.file-row.active:before{content:"";position:absolute;left:0;width:2px;height:15px;background:var(--accent);border-radius:2px}.file-row .file-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.file-row .more{opacity:0}.file-row:hover .more{opacity:1}.empty{color:#656963;font-size:12px;padding:16px 12px;line-height:1.7}
+    .side-footer{border-top:1px solid var(--line);padding:14px 4px 0}.export-all{width:100%;border:1px solid #2b302d;background:#181b1a;border-radius:8px;padding:9px;cursor:pointer;color:#b6bab4}.export-all:hover{border-color:#465048;color:white}
+    main{position:relative;min-width:0;height:100%;background:#0c0d0d}.topbar{height:76px;position:absolute;z-index:4;top:0;left:0;right:0;display:flex;align-items:center;padding:0 28px;opacity:.35;transition:opacity .25s}.topbar:hover,.topbar:focus-within{opacity:1}.toggle{margin-right:14px}.title{font-family:Georgia,serif;border:0;background:transparent;color:#c8c7c1;font-size:15px;outline:0;min-width:0;width:min(420px,40vw);padding:7px}.title:focus{background:#121414}.spacer{flex:1}.status{color:#60645f;font:11px/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;margin-right:15px}.export-file{border:1px solid #292d2b;background:#121414;border-radius:8px;padding:7px 11px;cursor:pointer;color:#929790}.export-file:hover{color:#ddd;border-color:#414743}
+    .editor-wrap{position:absolute;inset:0;overflow:hidden}.focus-glow{pointer-events:none;position:absolute;z-index:2;inset:0;background:linear-gradient(to bottom,rgba(12,13,13,.76) 0,rgba(12,13,13,.34) calc(var(--focus-y) - 16rem),transparent calc(var(--focus-y) - 5rem),transparent calc(var(--focus-y) + 5rem),rgba(12,13,13,.34) calc(var(--focus-y) + 16rem),rgba(12,13,13,.76) 100%);transition:background .4s ease}.editor{position:absolute;inset:0;z-index:1;padding:calc(50vh - 1em) max(32px,calc((100vw - 760px)/2)) 50vh;overflow:auto;scrollbar-width:none;font:20px/1.9 Georgia,"Times New Roman",serif;letter-spacing:.012em;color:#d9d7d0}.editor::-webkit-scrollbar{display:none}.block{min-height:1.9em;margin:0 0 .65em;cursor:text;transition:color .2s}.block:hover{color:#fff}.block h1,.block h2,.block h3{font-weight:500;line-height:1.25;margin:.3em 0}.block h1{font-size:2em}.block h2{font-size:1.55em}.block h3{font-size:1.25em}.block p{margin:0}.block blockquote{margin:0;padding-left:1em;border-left:2px solid #506055;color:#abb2aa;font-style:italic}.block ul,.block ol{margin:0;padding-left:1.4em}.block pre{overflow:auto;padding:14px 16px;background:#121514;border:1px solid #252a27;border-radius:8px;font:14px/1.65 ui-monospace,SFMono-Regular,Menlo,monospace}.block code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;color:#b7cdbb}.block hr{border:0;border-top:1px solid #303431;margin:1.5em 0}.block a{color:#a8c8ae;text-decoration-color:#536659}.source{display:block;width:100%;min-height:1.9em;padding:0;resize:none;overflow:hidden;border:0;outline:0;background:transparent;color:#d9d7d0;caret-color:var(--accent);font:inherit;line-height:1.9;letter-spacing:inherit}.source::selection{background:#344139}.empty-editor{color:#3f443f;font-style:italic;cursor:text}
+    .welcome{position:absolute;z-index:5;inset:0;display:grid;place-items:center;text-align:center;pointer-events:none;background:#0c0d0d;transition:.4s}.welcome.hidden{opacity:0;visibility:hidden}.welcome h1{font:italic 34px Georgia,serif;font-weight:400;margin:0 0 10px;color:#d8d6ce}.welcome p{color:#6e726d;margin:0}.welcome b{color:#9cb9a2;font-weight:400}
+    .menu{position:fixed;z-index:20;display:none;width:145px;padding:5px;background:#1b1e1d;border:1px solid #303432;border-radius:8px;box-shadow:0 12px 35px #0008}.menu.show{display:block}.menu button{display:block;width:100%;text-align:left;border:0;background:none;padding:8px;border-radius:5px;color:#b8bbb6;cursor:pointer}.menu button:hover{background:#292d2b;color:white}.menu .danger{color:#c68d88}
+    .toast{position:fixed;z-index:30;bottom:24px;left:50%;transform:translate(-50%,20px);padding:9px 14px;border:1px solid #303632;border-radius:8px;background:#171a18;color:#b8c6ba;opacity:0;transition:.25s;pointer-events:none}.toast.show{opacity:1;transform:translate(-50%,0)}
+    @media(max-width:700px){.app{grid-template-columns:0 1fr}.app:not(.closed){grid-template-columns:min(82vw,280px) 1fr}.sidebar{box-shadow:12px 0 30px #0008}.editor{padding-left:30px;padding-right:30px;font-size:18px}.status{display:none}}
+  </style>
+</head>
+<body>
+<div class="app" id="app">
+  <aside class="sidebar"><div class="side-inner">
+    <div class="brand"><div class="wordmark"><i></i>Still</div><button class="icon-btn" id="closeSide" title="Hide sidebar">‹</button></div>
+    <div class="side-actions"><button class="text-btn" id="newFolder"><span>＋</span>Folder</button><button class="text-btn" id="newFile"><span>＋</span>Note</button></div>
+    <div class="tree" id="tree"></div>
+    <div class="side-footer"><button class="export-all" id="exportAll">Export project · ZIP</button></div>
+  </div></aside>
+  <main>
+    <div class="topbar"><button class="icon-btn toggle" id="openSide" title="Toggle sidebar">☰</button><input class="title" id="title" aria-label="File name"><div class="spacer"></div><span class="status" id="status">saved locally</span><button class="export-file" id="exportFile">Export .md</button></div>
+    <div class="editor-wrap"><div class="editor" id="editor" aria-label="Markdown editor"></div><div class="focus-glow" id="glow"></div></div>
+    <div class="welcome" id="welcome"><div><h1>Write without noise.</h1><p>Create a <b>note</b> to begin. Everything stays on this device.</p></div></div>
+  </main>
+</div>
+<div class="menu" id="menu"><button data-act="rename">Rename</button><button data-act="export">Export</button><button class="danger" data-act="delete">Delete</button></div><div class="toast" id="toast"></div>
+<script>
+(() => {
+  'use strict';
+  const KEY = 'still-writer-v1';
+  let data, active = null, menuTarget = null, saveTimer, editing = null;
+  const $ = selector => document.querySelector(selector);
+  const tree = $('#tree'), editor = $('#editor'), title = $('#title');
+  const status = $('#status'), welcome = $('#welcome');
+  const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+
+  function escapeHTML(value) {
+    return value.replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+  }
+  function inlineMarkdown(value) {
+    let html = escapeHTML(value);
+    html = html.replace(/`([^`]+)`/g, '<code>$1</code>')
+      .replace(/!\[([^\]]*)\]\((https?:\/\/[^\s)]+)\)/g, '<span aria-label="Image: $1">🖼 $1</span>')
+      .replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>')
+      .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+      .replace(/__([^_]+)__/g, '<strong>$1</strong>')
+      .replace(/(^|[^*])\*([^*]+)\*/g, '$1<em>$2</em>')
+      .replace(/~~([^~]+)~~/g, '<del>$1</del>');
+    return html;
+  }
+  function parseBlock(source) {
+    const text = source.trimEnd();
+    if (/^```/.test(text)) return `<pre><code>${escapeHTML(text.replace(/^```[^\n]*\n?/, '').replace(/\n?```$/, ''))}</code></pre>`;
+    const heading = text.match(/^(#{1,3})\s+([\s\S]*)$/);
+    if (heading) return `<h${heading[1].length}>${inlineMarkdown(heading[2])}</h${heading[1].length}>`;
+    if (/^\s*([-*_])(?:\s*\1){2,}\s*$/.test(text)) return '<hr>';
+    if (text.split('\n').every(line => /^\s*[-+*]\s+/.test(line))) return `<ul>${text.split('\n').map(line => `<li>${inlineMarkdown(line.replace(/^\s*[-+*]\s+/, ''))}</li>`).join('')}</ul>`;
+    if (text.split('\n').every(line => /^\s*\d+[.)]\s+/.test(line))) return `<ol>${text.split('\n').map(line => `<li>${inlineMarkdown(line.replace(/^\s*\d+[.)]\s+/, ''))}</li>`).join('')}</ol>`;
+    if (text.split('\n').every(line => /^>\s?/.test(line))) return `<blockquote>${text.split('\n').map(line => inlineMarkdown(line.replace(/^>\s?/, ''))).join('<br>')}</blockquote>`;
+    return `<p>${text.split('\n').map(inlineMarkdown).join('<br>')}</p>`;
+  }
+  function splitBlocks(markdown) {
+    if (!markdown.trim()) return [];
+    const blocks = []; let current = [], fenced = false;
+    markdown.replace(/\r\n?/g, '\n').split('\n').forEach(line => {
+      if (/^```/.test(line)) fenced = !fenced;
+      if (!fenced && !line.trim()) { if (current.length) blocks.push(current.join('\n')); current = []; }
+      else current.push(line);
+    });
+    if (current.length) blocks.push(current.join('\n'));
+    return blocks;
+  }
+  function load() {
+    try { data = JSON.parse(localStorage.getItem(KEY)); } catch (_) {}
+    if (!data || !Array.isArray(data.folders)) data = {folders: []};
+    active = data.active || null;
+    if (!findFile(active)) active = data.folders.flatMap(folder => folder.files)[0]?.id || null;
+    renderTree(); open(active);
+  }
+  function save(now = false) {
+    status.textContent = 'saving…'; clearTimeout(saveTimer);
+    saveTimer = setTimeout(() => { data.active = active; localStorage.setItem(KEY, JSON.stringify(data)); status.textContent = 'saved locally'; }, now ? 0 : 350);
+  }
+  function findFile(id) {
+    for (const folder of data.folders) { const file = folder.files.find(item => item.id === id); if (file) return {folder, file}; }
+    return null;
+  }
+  function cleanName(value, fallback = 'Untitled') { return (value || fallback).replace(/[\\/:*?"<>|]/g, '-').trim() || fallback; }
+  function renderTree() {
+    tree.innerHTML = '';
+    if (!data.folders.length) tree.innerHTML = '<div class="empty">No notes yet.<br>Create a folder, then let the words arrive.</div>';
+    data.folders.forEach(folder => {
+      const wrap = document.createElement('div'); wrap.className = 'folder' + (folder.collapsed ? ' collapsed' : '');
+      wrap.innerHTML = `<div class="folder-head" data-folder="${folder.id}"><span class="chev">▾</span><span>⌁</span><span class="folder-name"></span><button class="icon-btn more" title="Folder options">···</button></div><div class="files"></div>`;
+      wrap.querySelector('.folder-name').textContent = folder.name;
+      folder.files.forEach(file => { const row = document.createElement('div'); row.className = 'file-row' + (file.id === active ? ' active' : ''); row.dataset.file = file.id; row.innerHTML = '<span style="opacity:.45">—</span><span class="file-name"></span><button class="icon-btn more">···</button>'; row.querySelector('.file-name').textContent = file.name; wrap.querySelector('.files').append(row); });
+      tree.append(wrap);
+    });
+  }
+  function renderDocument() {
+    editing = null; editor.innerHTML = '';
+    const hit = findFile(active); if (!hit) return;
+    const blocks = splitBlocks(hit.file.content || '');
+    if (!blocks.length) { const empty = document.createElement('div'); empty.className = 'empty-editor'; empty.textContent = 'Begin here…'; editor.append(empty); return; }
+    blocks.forEach((source, index) => { const block = document.createElement('div'); block.className = 'block'; block.dataset.index = index; block.dataset.source = source; block.innerHTML = parseBlock(source); editor.append(block); });
+  }
+  function open(id) {
+    commitEdit(); active = id; const hit = findFile(id); welcome.classList.toggle('hidden', !!hit); title.disabled = !hit; $('#exportFile').disabled = !hit;
+    if (hit) title.value = hit.file.name; else title.value = '';
+    renderTree(); renderDocument();
+  }
+  function startEdit(block, placeAtEnd = false) {
+    if (!findFile(active)) return; commitEdit();
+    const blocks = [...editor.querySelectorAll('.block')]; let index = block ? Number(block.dataset.index) : blocks.length;
+    const source = block ? block.dataset.source : '';
+    const textarea = document.createElement('textarea'); textarea.className = 'source'; textarea.spellcheck = true; textarea.value = source; textarea.dataset.index = index;
+    if (block) block.replaceWith(textarea); else { editor.innerHTML = ''; editor.append(textarea); }
+    editing = textarea; resizeSource(); textarea.focus(); textarea.setSelectionRange(placeAtEnd ? source.length : 0, placeAtEnd ? source.length : 0); updateFocus();
+  }
+  function resizeSource() { if (editing) { editing.style.height = '1px'; editing.style.height = Math.max(38, editing.scrollHeight) + 'px'; } }
+  function commitEdit() {
+    if (!editing) return;
+    const hit = findFile(active); if (!hit) { editing = null; return; }
+    const blocks = [...editor.querySelectorAll('.block, .source')].map(node => node === editing ? editing.value.trimEnd() : node.dataset.source).filter(Boolean);
+    hit.file.content = blocks.join('\n\n'); hit.file.updated = Date.now(); editing = null; save(); renderDocument();
+  }
+  function addFolder() { const name = prompt('Folder name', 'New folder'); if (name === null) return; data.folders.push({id:uid(), name:cleanName(name, 'New folder'), files:[]}); save(true); renderTree(); }
+  function addFile(folderId) { if (!data.folders.length) data.folders.push({id:uid(), name:'Writing', files:[]}); const folder = data.folders.find(item => item.id === folderId) || data.folders[0]; const file = {id:uid(), name:'Untitled', content:'', updated:Date.now()}; folder.files.push(file); folder.collapsed = false; save(true); open(file.id); title.select(); }
+  function download(blob, name) { const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = name; link.click(); setTimeout(() => URL.revokeObjectURL(link.href), 1000); toast('Exported ' + name); }
+  function exportFile(id = active) { commitEdit(); const hit = findFile(id); if (hit) download(new Blob([hit.file.content], {type:'text/markdown;charset=utf-8'}), cleanName(hit.file.name) + '.md'); }
+  function crc32(bytes) { let value = -1; for (const byte of bytes) { value ^= byte; for (let bit=0; bit<8; bit++) value = (value >>> 1) ^ ((value & 1) ? 0xEDB88320 : 0); } return (value ^ -1) >>> 0; }
+  function zipProject() { commitEdit(); const enc = new TextEncoder(), parts = [], central = []; let offset = 0; const files = []; data.folders.forEach(folder => folder.files.forEach(file => files.push({name:cleanName(folder.name)+'/'+cleanName(file.name)+'.md', body:file.content||''}))); if (!files.length) return toast('Nothing to export'); for (const file of files) { const name=enc.encode(file.name), body=enc.encode(file.body), crc=crc32(body), local=new Uint8Array(30+name.length+body.length), view=new DataView(local.buffer); view.setUint32(0,0x04034b50,true); view.setUint16(4,20,true); view.setUint16(6,0x800,true); view.setUint32(14,crc,true); view.setUint32(18,body.length,true); view.setUint32(22,body.length,true); view.setUint16(26,name.length,true); local.set(name,30); local.set(body,30+name.length); parts.push(local); const cen=new Uint8Array(46+name.length), cv=new DataView(cen.buffer); cv.setUint32(0,0x02014b50,true); cv.setUint16(4,20,true); cv.setUint16(6,20,true); cv.setUint16(8,0x800,true); cv.setUint32(16,crc,true); cv.setUint32(20,body.length,true); cv.setUint32(24,body.length,true); cv.setUint16(28,name.length,true); cv.setUint32(42,offset,true); cen.set(name,46); central.push(cen); offset+=local.length; } const size=central.reduce((sum,item)=>sum+item.length,0), end=new Uint8Array(22), ev=new DataView(end.buffer); ev.setUint32(0,0x06054b50,true); ev.setUint16(8,files.length,true); ev.setUint16(10,files.length,true); ev.setUint32(12,size,true); ev.setUint32(16,offset,true); download(new Blob([...parts,...central,end],{type:'application/zip'}),'still-project.zip'); }
+  function updateFocus(target = editing) { const rect = target?.getBoundingClientRect(); const y = rect ? rect.top + Math.min(rect.height/2, 100) : innerHeight/2; document.documentElement.style.setProperty('--focus-y', Math.max(80, Math.min(innerHeight-80, y))+'px'); }
+  function toast(message) { const element=$('#toast'); element.textContent=message; element.classList.add('show'); setTimeout(()=>element.classList.remove('show'),1800); }
+
+  editor.addEventListener('click', event => { if (event.target.closest('a') || editing) return; const block=event.target.closest('.block'); if (block) startEdit(block, true); else if (event.target.closest('.empty-editor')) startEdit(null); });
+  editor.addEventListener('pointerdown', event => { if (!editing || event.target.closest('.source')) return; const index=event.target.closest('.block')?.dataset.index; event.preventDefault(); commitEdit(); if (index !== undefined) startEdit(editor.querySelector(`.block[data-index="${index}"]`), true); });
+  editor.addEventListener('input', event => { if (event.target.classList.contains('source')) { resizeSource(); updateFocus(event.target); } });
+  editor.addEventListener('keydown', event => { if (event.target.classList.contains('source') && event.key === 'Escape') { event.preventDefault(); commitEdit(); } });
+  document.addEventListener('pointerdown', event => { if (editing && !event.target.closest('.source') && !event.target.closest('.editor')) commitEdit(); });
+  title.addEventListener('input',()=>{const hit=findFile(active);if(hit){hit.file.name=title.value;renderTree();save();}}); title.addEventListener('blur',()=>{const hit=findFile(active);if(hit&&!hit.file.name.trim()){hit.file.name='Untitled';title.value=hit.file.name;renderTree();save(true);}});
+  tree.addEventListener('click',event=>{const more=event.target.closest('.more'),row=event.target.closest('.file-row'),head=event.target.closest('.folder-head');if(more){event.stopPropagation();menuTarget=row?{type:'file',id:row.dataset.file}:{type:'folder',id:head.dataset.folder};const rect=more.getBoundingClientRect();$('#menu').style.cssText=`left:${rect.right+5}px;top:${Math.min(rect.top,innerHeight-130)}px`;$('#menu').classList.add('show');}else if(row)open(row.dataset.file);else if(head){const folder=data.folders.find(item=>item.id===head.dataset.folder);folder.collapsed=!folder.collapsed;save(true);renderTree();}});
+  $('#menu').addEventListener('click',event=>{const act=event.target.dataset.act;if(!act||!menuTarget)return;const hit=menuTarget.type==='file'?findFile(menuTarget.id):data.folders.find(folder=>folder.id===menuTarget.id);if(act==='export'){if(menuTarget.type==='file')exportFile(menuTarget.id);else toast('Use project export for folders');}if(act==='rename'){const object=menuTarget.type==='file'?hit?.file:hit,name=prompt('New name',object?.name);if(name!==null&&object){object.name=cleanName(name);if(object.id===active)title.value=object.name;save(true);renderTree();}}if(act==='delete'&&confirm(`Delete this ${menuTarget.type}? This cannot be undone.`)){if(menuTarget.type==='file'){hit.folder.files=hit.folder.files.filter(file=>file.id!==menuTarget.id);if(active===menuTarget.id){active=null;open(data.folders.flatMap(folder=>folder.files)[0]?.id||null);}}else{data.folders=data.folders.filter(folder=>folder.id!==menuTarget.id);if(hit.files.some(file=>file.id===active)){active=null;open(data.folders.flatMap(folder=>folder.files)[0]?.id||null);}}save(true);renderTree();}$('#menu').classList.remove('show');});
+  document.addEventListener('click',event=>{if(!event.target.closest('.menu')&&!event.target.closest('.more'))$('#menu').classList.remove('show');});
+  $('#newFolder').onclick=addFolder; $('#newFile').onclick=()=>addFile(); $('#exportFile').onclick=()=>exportFile(); $('#exportAll').onclick=zipProject; $('#openSide').onclick=()=>$('#app').classList.toggle('closed'); $('#closeSide').onclick=()=>$('#app').classList.add('closed');
+  document.addEventListener('keydown',event=>{if((event.ctrlKey||event.metaKey)&&event.key.toLowerCase()==='s'){event.preventDefault();commitEdit();save(true);toast('Saved locally');}if((event.ctrlKey||event.metaKey)&&event.key.toLowerCase()==='n'){event.preventDefault();addFile();}});
+  load();
+})();
+</script>
+</body>
+</html>
